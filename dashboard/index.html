@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar: pre-token protocols ranked by implied launch value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <p class="kicker">Token Launch Radar &middot; model radar-2</p>
+  <h1>Protocols that record no token, ranked by implied launch value</h1>
+  <p class="lede">From a sealed DefiLlama snapshot of 758 protocols, this board ranks the
+  pre-token protocols — those that <strong>record no token</strong> — by the value a
+  token launch would imply, from the snapshot's own figures. It does not predict
+  whether or when a token launches.</p>
+  <p id="counts" class="counts">Loading&hellip;</p>
+</header>
+
+<main>
+  <section id="model" aria-labelledby="model-h">
+    <h2 id="model-h">How the implied value is built</h2>
+    <p>Every row is scored by the same formula, from the snapshot's own figures only.
+    No protocol name is ever special-cased.</p>
+    <pre class="formula">implied = TVL &times; 0.205 &times; growthMult &times; maturityMult
+growthMult   = 1 + clamp(change_7d, &minus;60, +120) / 100 &times; 0.5
+maturityMult = 0.6 + min(age_days, 1095) / 1095 &times; 0.4   (age unknown: 365 days)</pre>
+    <h3>Where 0.205 comes from</h3>
+    <p>0.205 is the <strong>median mcap/TVL of the 128 live protocols in this same
+    snapshot that report a market cap</strong> (15 protocols whose market cap reads 0
+    are excluded). It is a calibration from the snapshot itself, not a round number
+    chosen by hand. The spread is wide — the middle half of live ratios runs from
+    0.044 to 1.043 — so any single implied value is an estimate with a wide band,
+    and the board is a ranking, not a price.</p>
+    <h3>What growth and maturity are</h3>
+    <p>Growth (7-day TVL change) and maturity (days listed without a token) are
+    <strong>directional priors</strong>, not fitted results: on the live protocols
+    neither predicts the market-cap multiple (correlation &minus;0.149 for growth,
+    &minus;0.004 for age). A growing, long-running protocol is worth more than an
+    identical shrinking, young one — that is the task's own rule — but the weights
+    cannot be calibrated from this data, so they are kept small and stated here.</p>
+    <h3>A size damp was tested and removed</h3>
+    <p>An earlier version multiplied by (TVL / $154M)<sup>&minus;0.25</sup>, because
+    across all live protocols market cap grows roughly with the square root of TVL
+    (log-log slope 0.52). A blind holdout killed it: the damp made the median
+    prediction error <em>worse</em> than a flat multiple in both hash splits
+    (88.7% vs 87.9%, 90.0% vs 88.6%), the size effect reverses inside Dexs
+    (slope 1.78) and Lending (1.50) — the global slope is a mix-of-categories
+    artefact — and the ranking with the damp is identical to the ranking without
+    it (Spearman 1.000, 0 of 183 rows move more than 10 ranks). The shipped
+    model is linear in TVL.</p>
+    <h3>Limits, stated plainly</h3>
+    <ul>
+      <li><strong>Implied value is a circulating-style estimate, not FDV.</strong>
+      The snapshot carries circulating market cap only, so the 0.205 multiple is a
+      mcap/TVL multiple. The implied value estimates what a launch would be worth
+      on the same basis — it is not a fully-diluted valuation.</li>
+      <li><strong>TVL dominates the ranking.</strong> TVL spans a hundredfold
+      across the board while growth and maturity move a value by at most about
+      30%, so the order is mostly the TVL order. The model changes the dollar
+      values and the close calls, not the shape of the list.</li>
+      <li><strong>"Records no token" is a data statement, not a fact about the
+      world.</strong> It means DefiLlama's record for the protocol carries no
+      market cap, no CoinGecko id and no symbol. A token could exist outside
+      that record.</li>
+      <li><strong>Farm plans never claim a points program or an airdrop.</strong>
+      The snapshot carries none, so no step promises one. Each plan is six
+      concrete steps — wallet, position, weekly action, hold, claim check, log —
+      with a cost and a time, derived from the protocol's category, chains, TVL
+      and age.</li>
+    </ul>
+  </section>
+
+  <section id="board-wrap" aria-labelledby="board-h">
+    <h2 id="board-h">The board</h2>
+    <div class="controls">
+      <label>Search <input id="q" type="search" placeholder="name or slug" autocomplete="off"></label>
+      <label>Category
+        <select id="cat"><option value="">All categories</option></select>
+      </label>
+      <label>Sort by
+        <select id="sort">
+          <option value="rank">Rank (implied value)</option>
+          <option value="tvl">TVL</option>
+          <option value="change">7-day change</option>
+          <option value="age">Age</option>
+        </select>
+      </label>
+      <label class="check"><input id="watch-only" type="checkbox"> Watchlist only</label>
+    </div>
+    <p id="board-meta" class="meta"></p>
+    <div class="table-wrap">
+      <table id="board">
+        <thead><tr>
+          <th>#</th><th>Protocol</th><th>Category</th><th>Chains</th>
+          <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
+          <th class="num">Implied value</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="hint">Select a row to see the factor breakdown and the farm plan.</p>
+  </section>
+
+  <section id="detail" aria-labelledby="detail-h" hidden>
+    <h2 id="detail-h">Protocol detail</h2>
+    <div id="detail-body"></div>
+  </section>
+
+  <section id="live-wrap" aria-labelledby="live-h">
+    <h2 id="live-h">Live tokens — shown apart, at the market's own value</h2>
+    <p>These protocols already trade. They are <strong>never</strong> mixed into the
+    ranked board; their value here is the market cap the snapshot records, not a
+    model estimate.</p>
+    <div class="table-wrap">
+      <table id="live">
+        <thead><tr>
+          <th>Protocol</th><th>Category</th><th class="num">TVL</th>
+          <th class="num">Market cap</th><th class="num">7d</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tracked" aria-labelledby="tracked-h">
+    <h2 id="tracked-h">Also tracked, not ranked</h2>
+    <p>Twenty pre-token protocols above the $50M floor pass the strict test but
+    are <strong>not ranked</strong>: the snapshot carries no parentProtocol field,
+    so a wrapped or staked product of a token that already trades cannot be ruled
+    out. They are listed here instead of silently dropped.</p>
+    <ul id="not-ranked" class="tracked-list"></ul>
+    <p>A further <span id="filtered-count"></span> pre-token protocols are left out
+    for a stated reason each — an excluded category (bridge, liquid staking,
+    exchange) or a versioned name, which marks a pool of another protocol:</p>
+    <ul id="filtered" class="tracked-list"></ul>
+  </section>
+
+  <footer>
+    <p>Source: DefiLlama snapshot, sealed 2026-11-14 (758 protocols, TVL floor
+    $5M). Watchlist floor $50M. Board: 40 watchlist + 143 pre-token protocols
+    below the floor. Dashboard is static and offline; no network calls.</p>
+  </footer>
+</main>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
