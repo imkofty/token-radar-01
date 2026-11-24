@@ -32,7 +32,9 @@ p, li { max-width: 78ch; }
 .meta { color: #5b6b7f; font-size: 14px; }
 .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; }
 table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
-th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eef1f4; white-space: nowrap; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eef1f4; }
+td.num, th.num { white-space: nowrap; }
+#board td:nth-child(2), #board td:nth-child(4) { white-space: normal; }
 th { background: #eef2f6; color: #16324f; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr { cursor: pointer; }
