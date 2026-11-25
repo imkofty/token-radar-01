@@ -15,9 +15,41 @@
   token launch would imply, from the snapshot's own figures. It does not predict
   whether or when a token launches.</p>
   <p id="counts" class="counts">Loading&hellip;</p>
+  <div id="facts" class="facts" aria-label="Coverage facts"></div>
 </header>
 
 <main>
+  <section id="board-wrap" aria-labelledby="board-h">
+    <h2 id="board-h">The board</h2>
+    <div class="controls">
+      <label>Search <input id="q" type="search" placeholder="name or slug" autocomplete="off"></label>
+      <label>Category
+        <select id="cat"><option value="">All categories</option></select>
+      </label>
+      <label>Sort by
+        <select id="sort">
+          <option value="rank">Rank (implied value)</option>
+          <option value="tvl">TVL</option>
+          <option value="change">7-day change</option>
+          <option value="age">Age</option>
+        </select>
+      </label>
+      <label class="check"><input id="watch-only" type="checkbox"> Watchlist only</label>
+    </div>
+    <p id="board-meta" class="meta"></p>
+    <div class="table-wrap">
+      <table id="board">
+        <thead><tr>
+          <th>#</th><th>Protocol</th><th>Category</th><th>Chains</th>
+          <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
+          <th class="num">Implied value</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="hint">Select a row to see the factor breakdown and the farm plan.</p>
+  </section>
+
   <section id="model" aria-labelledby="model-h">
     <h2 id="model-h">How the implied value is built</h2>
     <p>Every row is scored by the same formula, from the snapshot's own figures only.
@@ -127,37 +159,6 @@ maturityMult = 0.6 + min(age_days, 1095) / 1095 &times; 0.4   (age unknown: 365 
       <tr><td>CeDeFi</td><td>Deposit $C into NAME on CHAIN and keep the position open.</td></tr>
       <tr><td>Anything else</td><td>Deposit $C of USDC into NAME on CHAIN and keep the position open.</td></tr>
     </tbody></table>
-  </section>
-
-  <section id="board-wrap" aria-labelledby="board-h">
-    <h2 id="board-h">The board</h2>
-    <div class="controls">
-      <label>Search <input id="q" type="search" placeholder="name or slug" autocomplete="off"></label>
-      <label>Category
-        <select id="cat"><option value="">All categories</option></select>
-      </label>
-      <label>Sort by
-        <select id="sort">
-          <option value="rank">Rank (implied value)</option>
-          <option value="tvl">TVL</option>
-          <option value="change">7-day change</option>
-          <option value="age">Age</option>
-        </select>
-      </label>
-      <label class="check"><input id="watch-only" type="checkbox"> Watchlist only</label>
-    </div>
-    <p id="board-meta" class="meta"></p>
-    <div class="table-wrap">
-      <table id="board">
-        <thead><tr>
-          <th>#</th><th>Protocol</th><th>Category</th><th>Chains</th>
-          <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
-          <th class="num">Implied value</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <p class="hint">Select a row to see the factor breakdown and the farm plan.</p>
   </section>
 
   <section id="detail" aria-labelledby="detail-h" hidden>

@@ -14,6 +14,10 @@ h2 { font-size: 21px; margin: 34px 0 10px; color: #10233a; }
 h3 { font-size: 16px; margin: 18px 0 6px; color: #16324f; }
 .lede { font-size: 17px; max-width: 72ch; }
 .counts { font-weight: 600; color: #16324f; }
+.facts { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0 4px; }
+.fact { background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; padding: 10px 16px; min-width: 150px; }
+.fact strong { display: block; font-size: 20px; color: #10233a; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: #5b6b7f; }
 section { margin-top: 8px; }
 p, li { max-width: 78ch; }
 .formula {

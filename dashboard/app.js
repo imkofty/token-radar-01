@@ -40,6 +40,17 @@
   // The board marks watchlist rows from the explicit slug list in the data.
   if (R.watchlist_slugs) R.watchlist_slugs.forEach(function (s) { watchlist.add(s); });
 
+  // ---- facts strip (rendered from the data, above the board) ----
+  (function () {
+    var covered = 0;
+    R.rows.forEach(function (r) { if (watchlist.has(r.slug)) covered++; });
+    $('facts').innerHTML =
+      '<div class="fact"><strong>' + covered + ' / ' + R.watchlist_size + '</strong><span>watchlist covered</span></div>' +
+      '<div class="fact"><strong>' + R.board_size + '</strong><span>rows ranked</span></div>' +
+      '<div class="fact"><strong>' + R.early_size + '</strong><span>early, below the $50M floor</span></div>' +
+      '<div class="fact"><strong>' + R.live_size + '</strong><span>live tokens set aside</span></div>';
+  })();
+
   // ---- board ----
   var cats = [];
   R.rows.forEach(function (r) { if (r.category && cats.indexOf(r.category) < 0) cats.push(r.category); });
