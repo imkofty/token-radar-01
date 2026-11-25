@@ -62,6 +62,21 @@
   });
 
   var selected = null;
+  // Sort state: the dropdown and the clickable column headers share it.
+  // dir 1 = ascending by key, -1 = descending; rank ascending puts #1 first.
+  var sortKey = 'rank';
+  var sortDir = 1;
+  var sortDefaults = { rank: 1, tvl: -1, change: -1, age: -1, implied: -1 };
+  var maxImplied = R.rows.length ? R.rows[0].implied_value_usd : 1; // rows arrive rank-sorted
+  function updateSortUI() {
+    document.querySelectorAll('#board th[data-sort]').forEach(function (th) {
+      var arrow = th.querySelector('.arrow');
+      if (!arrow) return;
+      arrow.textContent = th.getAttribute('data-sort') === sortKey ? (sortDir === 1 ? '▲' : '▼') : '';
+    });
+    $('sort').value = sortKey === 'implied' ? 'rank' : sortKey;
+  }
+
   function visibleRows() {
     var q = $('q').value.trim().toLowerCase();
     var cat = $('cat').value;
@@ -72,11 +87,15 @@
       if (wOnly && !watchlist.has(r.slug)) return false;
       return true;
     });
-    var sort = $('sort').value;
-    if (sort === 'tvl') rows.sort(function (a, b) { return b.tvl_usd - a.tvl_usd; });
-    else if (sort === 'change') rows.sort(function (a, b) { return (b.change_7d || 0) - (a.change_7d || 0); });
-    else if (sort === 'age') rows.sort(function (a, b) { return (b.age_days || 0) - (a.age_days || 0); });
-    else rows.sort(function (a, b) { return a.rank - b.rank; });
+    rows.sort(function (a, b) {
+      var av, bv;
+      if (sortKey === 'tvl') { av = a.tvl_usd; bv = b.tvl_usd; }
+      else if (sortKey === 'change') { av = a.change_7d || 0; bv = b.change_7d || 0; }
+      else if (sortKey === 'age') { av = a.age_days || 0; bv = b.age_days || 0; }
+      else if (sortKey === 'implied') { av = a.implied_value_usd; bv = b.implied_value_usd; }
+      else { av = a.rank; bv = b.rank; }
+      return (av - bv) * sortDir;
+    });
     return rows;
   }
 
@@ -88,15 +107,22 @@
       var tr = document.createElement('tr');
       if (selected === r.slug) tr.className = 'selected';
       if (watchlist.has(r.slug)) tr.className += ' watch';
+      // Chains: first two only, the rest counted — the detail view lists all.
+      var chains = r.chains || [];
+      var chainsHtml = chains.length <= 2
+        ? esc(chains.join(', ') || '—')
+        : esc(chains.slice(0, 2).join(', ')) + ' <span class="meta">+' + (chains.length - 2) + ' more</span>';
+      // Implied-value bar: length ∝ value against the rank-1 row.
+      var barPct = Math.max(2, Math.round(r.implied_value_usd / maxImplied * 100));
       tr.innerHTML =
         '<td>' + r.rank + '</td>' +
         '<td><strong>' + esc(r.name) + '</strong><br><span class="meta">' + esc(r.slug) + '</span></td>' +
         '<td>' + esc(r.category || '—') + '</td>' +
-        '<td>' + esc((r.chains || []).join(', ') || '—') + '</td>' +
+        '<td>' + chainsHtml + '</td>' +
         '<td class="num">' + money(r.tvl_usd) + '</td>' +
         '<td class="num">' + pct(r.change_7d) + '</td>' +
         '<td class="num">' + ageText(r.age_days) + '</td>' +
-        '<td class="num"><strong>' + money(r.implied_value_usd) + '</strong></td>';
+        '<td class="num"><strong>' + money(r.implied_value_usd) + '</strong><span class="bar"><i style="width:' + barPct + '%"></i></span></td>';
       tr.addEventListener('click', function () { showDetail(r.slug); });
       tb.appendChild(tr);
     });
@@ -168,10 +194,27 @@
     });
   })();
 
+  // Clickable column headers: same key again toggles direction, a new key takes its default.
+  document.querySelectorAll('#board th[data-sort]').forEach(function (th) {
+    th.querySelector('button').addEventListener('click', function () {
+      var key = th.getAttribute('data-sort');
+      if (sortKey === key) sortDir = -sortDir;
+      else { sortKey = key; sortDir = sortDefaults[key]; }
+      updateSortUI();
+      renderBoard();
+    });
+  });
+  // The dropdown sets the key (direction resets to that key's default).
+  $('sort').addEventListener('change', function () {
+    sortKey = $('sort').value;
+    sortDir = sortDefaults[sortKey];
+    updateSortUI();
+  });
   ['q', 'cat', 'sort', 'watch-only'].forEach(function (id) {
     $(id).addEventListener('input', renderBoard);
     $(id).addEventListener('change', renderBoard);
   });
+  updateSortUI();
   renderBoard();
   // Open the top row's detail by default so the detail view is visible on load.
   if (R.rows.length) showDetail(R.rows[0].slug);

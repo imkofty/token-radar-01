@@ -41,6 +41,11 @@ td.num, th.num { white-space: nowrap; }
 #board td:nth-child(2), #board td:nth-child(4) { white-space: normal; }
 th { background: #eef2f6; color: #16324f; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+th button { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+th button .arrow { font-size: 11px; }
+th button:focus-visible { outline: 2px solid #16324f; outline-offset: 2px; }
+.bar { display: block; height: 5px; background: #e3edf7; border-radius: 3px; margin-top: 4px; }
+.bar i { display: block; height: 100%; background: #177245; border-radius: 3px; }
 tbody tr { cursor: pointer; }
 tbody tr:hover { background: #f0f5fa; }
 tbody tr.selected { background: #dbe9f7; }
