@@ -62,6 +62,24 @@
   });
 
   var selected = null;
+  // Tab state (Pre-token / Live token) and whether the board filter is empty.
+  var liveTab = false;
+  var boardEmpty = false;
+  function updateBoardVisibility() {
+    $('board-table-wrap').hidden = liveTab || boardEmpty;
+    $('live-table-wrap').hidden = !liveTab;
+    $('live-note').hidden = !liveTab;
+    $('board-empty').hidden = liveTab || !boardEmpty;
+    $('board-wrap').classList.toggle('live', liveTab);
+  }
+  function setTab(which) {
+    liveTab = which === 'live';
+    $('tab-pre').setAttribute('aria-selected', String(!liveTab));
+    $('tab-pre').setAttribute('aria-pressed', String(!liveTab));
+    $('tab-live').setAttribute('aria-selected', String(liveTab));
+    $('tab-live').setAttribute('aria-pressed', String(liveTab));
+    updateBoardVisibility();
+  }
   // Sort state: the dropdown and the clickable column headers share it.
   // dir 1 = ascending by key, -1 = descending; rank ascending puts #1 first.
   var sortKey = 'rank';
@@ -124,9 +142,16 @@
         '<td class="num">' + ageText(r.age_days) + '</td>' +
         '<td class="num"><strong>' + money(r.implied_value_usd) + '</strong><span class="bar"><i style="width:' + barPct + '%"></i></span></td>';
       tr.addEventListener('click', function () { showDetail(r.slug); });
+      // Keyboard: a row is focusable; Enter or Space opens the detail.
+      tr.tabIndex = 0;
+      tr.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showDetail(r.slug); }
+      });
       tb.appendChild(tr);
     });
     $('board-meta').textContent = rows.length + ' of ' + R.rows.length + ' rows shown.';
+    boardEmpty = rows.length === 0;
+    updateBoardVisibility();
   }
 
   // ---- per-category detail extras (derived from the row's own fields) ----
@@ -306,6 +331,17 @@
     sortKey = $('sort').value;
     sortDir = sortDefaults[sortKey];
     updateSortUI();
+  });
+  // Tabs: Pre-token board vs Live-token table.
+  $('tab-pre').addEventListener('click', function () { setTab('pre'); });
+  $('tab-live').addEventListener('click', function () { setTab('live'); });
+  // Empty state: clear every filter and go back to the full board.
+  $('clear-filters').addEventListener('click', function () {
+    $('q').value = ''; $('cat').value = ''; $('sort').value = 'rank';
+    sortKey = 'rank'; sortDir = 1; $('watch-only').checked = false;
+    updateSortUI();
+    renderBoard();
+    $('q').focus();
   });
   ['q', 'cat', 'sort', 'watch-only'].forEach(function (id) {
     $(id).addEventListener('input', renderBoard);

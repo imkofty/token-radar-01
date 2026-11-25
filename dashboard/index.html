@@ -21,6 +21,10 @@
 <main>
   <section id="board-wrap" aria-labelledby="board-h">
     <h2 id="board-h">The board</h2>
+    <div class="tabs" role="tablist" aria-label="Board view">
+      <button id="tab-pre" type="button" role="tab" aria-selected="true" aria-pressed="true">Pre-token</button>
+      <button id="tab-live" type="button" role="tab" aria-selected="false" aria-pressed="false">Live token</button>
+    </div>
     <div class="controls">
       <label>Search <input id="q" type="search" placeholder="name or slug" autocomplete="off"></label>
       <label>Category
@@ -37,7 +41,7 @@
       <label class="check"><input id="watch-only" type="checkbox"> Watchlist only</label>
     </div>
     <p id="board-meta" class="meta"></p>
-    <div class="table-wrap">
+    <div class="table-wrap" id="board-table-wrap">
       <table id="board">
         <thead><tr>
           <th data-sort="rank"><button type="button"># <span class="arrow"></span></button></th><th>Protocol</th><th>Category</th><th>Chains</th>
@@ -50,6 +54,20 @@
       </table>
     </div>
     <p class="hint">Select a row to see the factor breakdown and the farm plan.</p>
+    <div class="table-wrap" id="live-table-wrap" hidden>
+      <table id="live">
+        <thead><tr>
+          <th>Protocol</th><th>Category</th><th class="num">TVL</th>
+          <th class="num">Market cap</th><th class="num">7d</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="live-note" class="meta" hidden>Live tokens — shown apart, at the market's own value. These protocols already trade; they are never mixed into the ranked board.</p>
+    <div id="board-empty" class="empty" hidden>
+      <p>No protocol matches that filter.</p>
+      <button id="clear-filters" type="button">Clear filters</button>
+    </div>
   </section>
 
   <section id="model" aria-labelledby="model-h">
@@ -166,22 +184,6 @@ maturityMult = 0.6 + min(age_days, 1095) / 1095 &times; 0.4   (age unknown: 365 
   <section id="detail" aria-labelledby="detail-h" hidden>
     <h2 id="detail-h">Protocol detail</h2>
     <div id="detail-body"></div>
-  </section>
-
-  <section id="live-wrap" aria-labelledby="live-h">
-    <h2 id="live-h">Live tokens — shown apart, at the market's own value</h2>
-    <p>These protocols already trade. They are <strong>never</strong> mixed into the
-    ranked board; their value here is the market cap the snapshot records, not a
-    model estimate.</p>
-    <div class="table-wrap">
-      <table id="live">
-        <thead><tr>
-          <th>Protocol</th><th>Category</th><th class="num">TVL</th>
-          <th class="num">Market cap</th><th class="num">7d</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
   </section>
 
   <section id="tracked" aria-labelledby="tracked-h">

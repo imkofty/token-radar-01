@@ -44,6 +44,14 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th button { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
 th button .arrow { font-size: 11px; }
 th button:focus-visible { outline: 2px solid #16324f; outline-offset: 2px; }
+.tabs { display: flex; gap: 8px; margin: 14px 0 0; }
+.tabs button { font: inherit; padding: 7px 16px; border: 1px solid #b9c4d0; border-radius: 999px; background: #eef2f6; color: #16324f; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: #16324f; border-color: #16324f; color: #fff; font-weight: 700; }
+.tabs button:focus-visible { outline: 2px solid #16324f; outline-offset: 2px; }
+#board-wrap.live .controls, #board-wrap.live #board-meta, #board-wrap.live .hint { display: none; }
+.empty { background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; padding: 22px; text-align: center; }
+.empty button { font: inherit; padding: 7px 16px; border: 1px solid #b9c4d0; border-radius: 6px; background: #fff; color: #16324f; cursor: pointer; }
+tbody tr:focus-visible { outline: 2px solid #16324f; outline-offset: -2px; }
 .bar { display: block; height: 5px; background: #e3edf7; border-radius: 3px; margin-top: 4px; }
 .bar i { display: block; height: 100%; background: #177245; border-radius: 3px; }
 tbody tr { cursor: pointer; }
