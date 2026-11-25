@@ -129,6 +129,96 @@
     $('board-meta').textContent = rows.length + ' of ' + R.rows.length + ' rows shown.';
   }
 
+  // ---- per-category detail extras (derived from the row's own fields) ----
+  // Same substring rules, in the same order, as the plan generator's
+  // category branches — so the detail never disagrees with board.json.
+  // The six farm steps stay verbatim from the row; these lines are extras.
+  function catKey(c) { return (c || '').toLowerCase(); }
+  function weeklyFor(c) {
+    var k = catKey(c);
+    if (k.indexOf('lend') >= 0 || k.indexOf('cdp') >= 0 || k.indexOf('collateral') >= 0)
+      return 'Repay a small part of the borrow and re-supply the same week, so both legs of the position stay active.';
+    if (k.indexOf('dex') >= 0 || k.indexOf('leveraged farm') >= 0)
+      return 'Swap a small amount through the pool and add the fees back to the position.';
+    if (k.indexOf('yield') >= 0 && k.indexOf('yield aggregator') < 0)
+      return 'Claim any accrued yield and redeposit it into the same vault.';
+    if (k.indexOf('bridge') >= 0)
+      return 'Use the bridge once for a small amount and keep the receipt; skip the week if the route is no longer the cheapest.';
+    if (k.indexOf('restak') >= 0)
+      return 'Claim the week\u2019s restaking rewards and restake them.';
+    if (k.indexOf('staking') >= 0)
+      return 'Claim the week\u2019s staking rewards and restake them.';
+    if (k.indexOf('perpetual') >= 0 || k.indexOf('derivative') >= 0)
+      return 'Close the hedge and reopen it, so the position stays inside its margin.';
+    if (k.indexOf('prediction') >= 0)
+      return 'Settle this week\u2019s market position and place the next one.';
+    if (k.indexOf('curator') >= 0 || k.indexOf('allocator') >= 0)
+      return 'Read the vault\u2019s allocation report and top up only if the curator rotated.';
+    if (k.indexOf('basis') >= 0)
+      return 'Check the basis vault\u2019s funding rate and hold the position.';
+    if (k.indexOf('rwa') >= 0)
+      return 'Check the asset\u2019s backing report and hold — no weekly trade is needed.';
+    if (k.indexOf('insurance') >= 0)
+      return 'Check the cover is still active; no weekly action unless the policy nears expiry.';
+    if (k.indexOf('stable') >= 0)
+      return 'Check the peg and hold the stable position.';
+    if (k.indexOf('payment') >= 0)
+      return 'Send one small payment through the app and keep the receipt.';
+    if (k.indexOf('governance') >= 0)
+      return 'Vote on the week\u2019s open proposal, or delegate if there is none.';
+    if (k.indexOf('chain') >= 0)
+      return 'Use the chain\u2019s flagship app once this week and keep the receipt.';
+    if (k.indexOf('cede') >= 0)
+      return 'Check the custodian\u2019s statement and hold the position.';
+    return 'Make one qualifying action this week — a deposit, a borrow, a swap or a vote — and record it in the farm log.';
+  }
+  function riskFor(c) {
+    var k = catKey(c);
+    if (k.indexOf('lend') >= 0 || k.indexOf('cdp') >= 0 || k.indexOf('collateral') >= 0)
+      return 'Liquidation if the collateral falls below the borrow.';
+    if (k.indexOf('dex') >= 0 || k.indexOf('leveraged farm') >= 0)
+      return 'Impermanent loss if the pool\u2019s price ratio moves.';
+    if (k.indexOf('yield') >= 0 && k.indexOf('yield aggregator') < 0)
+      return 'The vault\u2019s strategy can change; the yield is not guaranteed.';
+    if (k.indexOf('bridge') >= 0)
+      return 'Bridged funds depend on the bridge staying solvent.';
+    if (k.indexOf('restak') >= 0 || k.indexOf('staking') >= 0)
+      return 'Slashing, or the receipt token losing its peg.';
+    if (k.indexOf('perpetual') >= 0 || k.indexOf('derivative') >= 0)
+      return 'Funding payments can eat the margin.';
+    if (k.indexOf('prediction') >= 0)
+      return 'A wrong market call loses the stake.';
+    if (k.indexOf('curator') >= 0 || k.indexOf('allocator') >= 0)
+      return 'The curator\u2019s allocation decides the return.';
+    if (k.indexOf('basis') >= 0)
+      return 'The basis trade can unwind if funding flips.';
+    if (k.indexOf('rwa') >= 0)
+      return 'The real-world backing is only as good as its custodian.';
+    if (k.indexOf('insurance') >= 0)
+      return 'A claim can be denied if the policy\u2019s conditions are not met.';
+    if (k.indexOf('stable') >= 0)
+      return 'A depeg breaks the stable value.';
+    if (k.indexOf('payment') >= 0)
+      return 'A failed payment can strand funds in transit.';
+    if (k.indexOf('governance') >= 0)
+      return 'A vote can go against your position.';
+    if (k.indexOf('chain') >= 0)
+      return 'The chain itself is the risk — an outage freezes the position.';
+    if (k.indexOf('cede') >= 0)
+      return 'The custodian holds the funds.';
+    return 'The position can lose value if the protocol\u2019s terms change.';
+  }
+  // Total outlay from the plan's own numbers: capital tiers, setup gas and
+  // hold rule are the same as the plan generator's (TVL and age only).
+  function outlayFor(r) {
+    var capital = r.tvl_usd >= 5e9 ? 250 : r.tvl_usd >= 1e9 ? 150 : r.tvl_usd >= 1e8 ? 100 : 50;
+    var setupGas = capital >= 150 ? 8 : 4;
+    var age = r.age_days;
+    var hold = age === null || age === undefined ? 30 : age < 180 ? 60 : age < 365 ? 45 : 30;
+    var weeks = Math.round(hold / 7);
+    return { capital: capital, setupGas: setupGas, weeks: weeks, total: capital + setupGas + 2 * weeks };
+  }
+
   // ---- detail ----
   function showDetail(slug) {
     var r = null;
@@ -138,6 +228,7 @@
     renderBoard();
     var base = Math.round(r.tvl_usd * R.model.base_multiple);
     var afterGrowth = Math.round(base * r.growth_multiplier);
+    var o = outlayFor(r);
     var body = $('detail-body');
     body.innerHTML =
       '<h3>' + esc(r.name) + ' <span class="tag">rank #' + r.rank + '</span>' +
@@ -153,6 +244,12 @@
       '<tr class="total"><td>Implied launch value</td><td class="num">' + money(r.implied_value_usd) + '</td></tr>' +
       '</tbody></table>' +
       '<p class="meta">Circulating-style estimate, not FDV: the 0.205 multiple is calibrated on circulating market cap.</p>' +
+      '<h3>Weekly action — ' + esc(r.category || 'this category') + '</h3>' +
+      '<p>' + esc(weeklyFor(r.category)) + '</p>' +
+      '<h3>Total outlay</h3>' +
+      '<p>Total outlay: $' + o.capital + ' of capital + about $' + o.setupGas + ' of setup gas + about $2 a week for ' + o.weeks + ' weeks &asymp; $' + o.total + '. The $' + o.capital + ' stays yours in the position; only the gas is spent.</p>' +
+      '<h3>Main risk — ' + esc(r.category || 'this category') + '</h3>' +
+      '<p>' + esc(riskFor(r.category)) + '</p>' +
       '<h3>Farm plan — six steps</h3>' +
       '<ol class="farm">' + r.farm_steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
       '<p class="meta">No step promises a points program or an airdrop: the snapshot carries none.</p>';
