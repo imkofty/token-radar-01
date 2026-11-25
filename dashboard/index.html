@@ -71,6 +71,64 @@ maturityMult = 0.6 + min(age_days, 1095) / 1095 &times; 0.4   (age unknown: 365 
     </ul>
   </section>
 
+  <section id="farm-plans" aria-labelledby="farm-plans-h">
+    <h2 id="farm-plans-h">How each farm plan is built</h2>
+    <p>Every ranked row carries a farm plan of six concrete steps. The plan is
+    generated from the protocol's own record only — its category, first chain,
+    TVL and age — by the fixed rules below, never by hand. No step promises a
+    points program or an airdrop: the snapshot carries none. Each step is
+    capped at 600 characters.</p>
+    <ol>
+      <li><strong>Fresh wallet.</strong> Use a fresh wallet that holds only the
+      funds you plan to farm, and keep its seed phrase offline. Cost: under $3
+      of gas for the first transaction. Time: 5 minutes.</li>
+      <li><strong>Open the position.</strong> The action depends on the category
+      (table below). Cost: the capital below, plus about $8 of gas for a $150 or
+      $250 position, about $4 for a $50 or $100 one. Time: 15 minutes to set up.</li>
+      <li><strong>One qualifying action each week</strong>, such as a deposit, a
+      borrow, a swap or a vote. Cost: about $2 of gas a week. Time: 10 minutes
+      a week.</li>
+      <li><strong>Hold the position</strong> for at least 60 days if the protocol
+      is under 180 days old, 45 days if under a year, otherwise 30 days
+      (30 days when the listing date is unknown), so the activity is counted in
+      more than one snapshot. Cost: the capital stays in the position. Time: the
+      hold itself.</li>
+      <li><strong>Claim check.</strong> Before you withdraw, open the protocol's
+      own points or rewards page and claim only from the link it publishes.
+      Cost: no fee to check, and never pay to claim. Time: 10 minutes.</li>
+      <li><strong>Farm log.</strong> Write the wallet, the dates and every
+      transaction in a farm log so you can repeat the position or unwind it.
+      Cost: nothing but the log. Time: 5 minutes.</li>
+    </ol>
+    <h3>Capital by TVL</h3>
+    <p>$250 at TVL $5B or more; $150 at $1B or more; $100 at $100M or more;
+    $50 below that.</p>
+    <h3>The position action, by category</h3>
+    <p>The first matching rule wins; the category name is matched in this order.
+    <em>$C</em> is the capital above, <em>NAME</em> the protocol, <em>CHAIN</em>
+    its first listed chain.</p>
+    <table class="actions"><tbody>
+      <tr><td>Lending, CDP, collateral</td><td>Supply $C of USDC to NAME on CHAIN as collateral, borrow a small amount against it, and keep both legs open.</td></tr>
+      <tr><td>Dexs, Leveraged Farming</td><td>Provide $C of liquidity to NAME's main pool on CHAIN and keep the position open.</td></tr>
+      <tr><td>Yield (not Yield Aggregator)</td><td>Deposit $C into NAME's main yield vault on CHAIN and keep the shares.</td></tr>
+      <tr><td>Bridge</td><td>Bridge $C of USDC to CHAIN through NAME and use the bridged funds in its app.</td></tr>
+      <tr><td>Restaking</td><td>Restake $C of the chain's staking asset through NAME and keep the receipt.</td></tr>
+      <tr><td>Staking, Staking Pool</td><td>Stake $C of the chain's staking asset through NAME and keep the receipt.</td></tr>
+      <tr><td>Perpetual, Derivatives</td><td>Deposit $C of USDC as margin on NAME and open one small hedged position.</td></tr>
+      <tr><td>Prediction Market</td><td>Fund $C and place one market position on NAME.</td></tr>
+      <tr><td>Risk Curators, Onchain Capital Allocator</td><td>Deposit $C into a NAME vault on CHAIN and keep the shares.</td></tr>
+      <tr><td>Basis Trading</td><td>Deposit $C into NAME's basis vault on CHAIN and keep the position open.</td></tr>
+      <tr><td>RWA</td><td>Mint $C of NAME's yield-bearing asset on CHAIN and hold it.</td></tr>
+      <tr><td>Insurance</td><td>Buy $C of cover from NAME on CHAIN and keep the policy.</td></tr>
+      <tr><td>Stablecoin, Algo-Stables</td><td>Mint or deposit $C of the stable asset through NAME on CHAIN.</td></tr>
+      <tr><td>Payments</td><td>Send $C through NAME on CHAIN and keep the receipt.</td></tr>
+      <tr><td>Governance</td><td>Lock or delegate $C through NAME's governance on CHAIN and vote once.</td></tr>
+      <tr><td>Chain</td><td>Bridge $C of USDC to NAME's chain and use it in the chain's flagship app.</td></tr>
+      <tr><td>CeDeFi</td><td>Deposit $C into NAME on CHAIN and keep the position open.</td></tr>
+      <tr><td>Anything else</td><td>Deposit $C of USDC into NAME on CHAIN and keep the position open.</td></tr>
+    </tbody></table>
+  </section>
+
   <section id="board-wrap" aria-labelledby="board-h">
     <h2 id="board-h">The board</h2>
     <div class="controls">

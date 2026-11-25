@@ -46,6 +46,8 @@ tbody tr.watch td:first-child::after { content: " \2605"; color: #b7791f; }
 #detail-body { background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; padding: 18px 22px; }
 #detail-body h3 { margin-top: 20px; }
 .factors { width: auto; }
+.actions { font-size: 14px; }
+.actions td:first-child { white-space: nowrap; font-weight: 600; color: #16324f; }
 .factors td, .factors th { border-bottom: 1px solid #eef1f4; }
 .factors td.num { font-variant-numeric: tabular-nums; }
 .factors tr.total td { font-weight: 700; border-top: 2px solid #16324f; }
